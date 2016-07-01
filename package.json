@@ -1,5 +1,5 @@
 {
-  "name": "github-pr-file-filter",
+  "name": "pr-file-filter-for-Github",
   "private": true,
   "engines": {
     "node": ">=0.8.0"

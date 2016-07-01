@@ -1,4 +1,4 @@
-# Github Pull Request file filtering
+# PR file filter for Github
 This Chrome extension extends the file search of a pull request to allow for actual filtering with globs.
 
 ![Demo](./assets/demo.gif)
@@ -6,20 +6,20 @@ This Chrome extension extends the file search of a pull request to allow for act
 ## Examples
 
 **Path:**
-- `api/src/test/resources/templates/files/DashboardTest.json`
+- `src/test/resources/templates/files/DashboardTest.json`
 
 Patterns:
 - `**/templates/**/*.json`
 - `**/templates/**/*Test.json`
 
 **Path:**
-- `api/src/test/java/com/company/project/handlebars/config/HandlebarsConfigTest.java`
+- `src/test/java/com/company/project/handlebars/config/HandlebarsConfigTest.java`
 
 Pattern:
 - `**/handlebars/**/*test.java`
 
 **Path:**
-- `api/src/main/java/com/company/project/domain/AbstractProjectContext.java`
+- `src/main/java/com/company/project/domain/AbstractProjectContext.java`
 
 Pattern:
 - `!*.js?(on)` (Exclude .js and .json files from results)
