@@ -77,13 +77,6 @@ gulp.task('size', () => {
   return gulp.src('dist/**/*').pipe($.size({title: 'build', gzip: true}));
 });
 
-gulp.task('package', ['build'], function () {
-  var manifest = require('./dist/manifest.json');
-  return gulp.src('dist/**')
-      .pipe($.zip('PR File Filter for Github-' + manifest.version + '.zip'))
-      .pipe(gulp.dest('package'));
-});
-
 gulp.task('build', ['clean'], (cb) => {
   runSequence(
     'lint', 'babel', 'chromeManifest',
