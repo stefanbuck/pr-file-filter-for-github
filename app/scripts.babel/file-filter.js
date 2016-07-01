@@ -3,19 +3,41 @@ const fileNodeSelector = '[data-filterable-for="files-changed-filter-field"] .js
 
 export default class FileFilter {
   constructor() {
-    this.fileNames = [];
+    this.files = [];
     this.searchInput = document.getElementById('files-changed-filter-field');
   }
 
+  matches(files, filter) {
+    if (filter === '') {
+      return files;
+    }
+
+    if (!filter.includes('*')) {
+      return files.filter(file => file.name.includes(filter));
+    }
+
+    if (!filter.endsWith('*')) {
+      filter = filter + '*';
+    }
+
+    const matchConfig = {
+      nocase: true,
+      dot: true,
+      matchBase: true
+    };
+    const matchedFiles = minimatch.match(this.files.map(file => file.name), filter, matchConfig);
+
+    return files.filter(file => matchedFiles.includes(file.name));
+  }
+
   showFiltered(filter) {
-    this.fileNames.forEach(file => {
-      if (minimatch(file.name, filter, { matchBase: true })) {
-        file.filterNode.style.display = 'block';
-        file.listNode.style.display = 'block';
-      } else {
-        file.filterNode.style.display = 'none';
-        file.listNode.style.display = 'none';
-      }
+    this.files.forEach(file => {
+      file.filterNode.style.display = 'none';
+      file.listNode.style.display = 'none';
+    });
+    this.matches(this.files, filter).forEach(file => {
+      file.filterNode.style.display = 'block';
+      file.listNode.style.display = 'block';
     });
   }
 
@@ -26,18 +48,18 @@ export default class FileFilter {
   }
 
   handleInput(event) {
-    const value = event.target.value + '*';
+    const value = event.target.value;
 
-    window.setTimeout(this.showFiltered.bind(this), 500, value);
+    window.setTimeout(this.showFiltered.bind(this), 300, value);
   }
 
   collectFiles() {
     const fileNodes = document.querySelectorAll(fileNodeSelector);
     for (const node of fileNodes) {
-      const name = node.querySelector('.description').textContent.trim().replace(/.../, '');
+      const name = node.querySelector('.description').textContent.trim().replace(/.../, '').replace(/\{ → /, '').replace(/\}/, '');
       const listNodeHeader = document.querySelector('#files [title$="' + name + '"]');
 
-      this.fileNames.push({
+      this.files.push({
         name: listNodeHeader.getAttribute('title'),
         filterNode: node,
         listNode: this.findParentNode(listNodeHeader),
