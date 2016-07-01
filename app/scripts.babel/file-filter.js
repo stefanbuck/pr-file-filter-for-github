@@ -40,10 +40,21 @@ export default class FileFilter {
   }
 
   showFiltered() {
+    let count = 0;
     this.matches(this.files, this.searchValue).forEach(file => {
       file.filterNode.style.display = file.show ? 'block' : 'none';
       file.listNode.style.display = file.show ? 'block' : 'none';
+
+      if (file.show) {
+        count++;
+      }
     });
+
+    if (this.searchValue !== '') {
+      this.searchToggle.querySelector('strong').textContent = count + ' files found';
+    } else {
+      this.searchToggle.querySelector('strong').textContent = count + ' changed files';
+    }
   }
 
   findParentNode(el) {
