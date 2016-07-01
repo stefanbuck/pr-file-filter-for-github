@@ -29,3 +29,6 @@ Pattern:
 If you experience any problems while using the file filter feel free to create an issue. It is extremly helpful to include 1. the file paths you tried to search against and 2. the pattern you used for searching as well as the expected results. When possible link the related PR (in case it is a public repository)
 
 Copyright (c) 2016 [Sammy Braun](https://github.com/siggysamson)
+
+## ToDo
+- Write tests!
