@@ -1,8 +1,8 @@
 {
-  "name": "__MSG_appName__",
+  "name": "PR file filter for Github",
   "version": "0.1.0",
   "manifest_version": 2,
-  "description": "__MSG_appDescription__",
+  "description": "Extends the file search of a pull request to allow for filtering with globs",
   "icons": {
     "16": "images/icon-16.png",
     "128": "images/icon-128.png"
