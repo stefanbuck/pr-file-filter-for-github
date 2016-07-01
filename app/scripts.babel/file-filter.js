@@ -23,17 +23,6 @@ export default class FileFilter {
       }));
     }
 
-    // if (!filter.includes('*')) {
-    //   return files.map(file => ({
-    //     ...file,
-    //     show: file.name.toLowerCase().includes(filter.toLowerCase())
-    //   }));
-    // }
-
-    // if (!filter.endsWith('*')) {
-    //   filter = filter + '**';
-    // }
-
     const matchConfig = {
       nocase: true,
       dot: true,
@@ -106,7 +95,7 @@ export default class FileFilter {
     this.mutationObserver.observe(this.fileDropdown, {
       subtree: true,
       attributes: true,
-      attributeFilter: ["style"]
+      attributeFilter: ['style']
     });
   }
 

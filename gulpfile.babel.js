@@ -3,7 +3,6 @@ import gulp from 'gulp';
 import gulpLoadPlugins from 'gulp-load-plugins';
 import del from 'del';
 import runSequence from 'run-sequence';
-import {stream as wiredep} from 'wiredep';
 import browserify from 'browserify';
 import babelify from 'babelify';
 import buffer from 'vinyl-buffer';
@@ -15,57 +14,31 @@ gulp.task('extras', () => {
   return gulp.src([
     'app/*.*',
     'app/_locales/**',
+    'app/images/**',
     '!app/scripts.babel',
     '!app/*.json',
-    '!app/*.html',
   ], {
     base: 'app',
     dot: true
   }).pipe(gulp.dest('dist'));
 });
 
-function lint(files, options) {
-  return () => {
-    return gulp.src(files)
-      .pipe($.eslint(options))
-      .pipe($.eslint.format());
+gulp.task('lint', () => {
+  const options = {
+    env: {
+      es6: true
+    },
+    parserOptions: {
+      sourceType: 'module',
+      ecmaFeatures: {
+        experimentalObjectRestSpread: true,
+      },
+    },
   };
-}
 
-gulp.task('lint', lint('app/scripts.babel/**/*.js', {
-  env: {
-    es6: true
-  },
-  parserOptions: {
-    sourceType: 'module'
-  }
-}));
-
-gulp.task('images', () => {
-  return gulp.src('app/images/**/*')
-    .pipe($.if($.if.isFile, $.cache($.imagemin({
-      progressive: true,
-      interlaced: true,
-      // don't remove IDs from SVGs, they are often used
-      // as hooks for embedding and styling
-      svgoPlugins: [{cleanupIDs: false}]
-    }))
-    .on('error', function (err) {
-      console.log(err);
-      this.end();
-    })))
-    .pipe(gulp.dest('dist/images'));
-});
-
-gulp.task('html',  () => {
-  return gulp.src('app/*.html')
-    .pipe($.useref({searchPath: ['.tmp', 'app', '.']}))
-    .pipe($.sourcemaps.init())
-    .pipe($.if('*.js', $.uglify()))
-    .pipe($.if('*.css', $.cleanCss({compatibility: '*'})))
-    .pipe($.sourcemaps.write())
-    .pipe($.if('*.html', $.htmlmin({removeComments: true, collapseWhitespace: true})))
-    .pipe(gulp.dest('dist'));
+  return gulp.src('app/scripts.babel/**/*.js')
+    .pipe($.eslint(options))
+    .pipe($.eslint.format());
 });
 
 gulp.task('chromeManifest', () => {
@@ -73,7 +46,6 @@ gulp.task('chromeManifest', () => {
     .pipe($.chromeManifest({
       buildnumber: true,
   }))
-  .pipe($.if('*.css', $.cleanCss({compatibility: '*'})))
   .pipe($.if('*.js', $.sourcemaps.init()))
   .pipe($.if('*.js', $.sourcemaps.write('.')))
   .pipe(gulp.dest('dist'));
@@ -97,24 +69,15 @@ gulp.task('babel', () => {
 
 gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 
-gulp.task('watch', ['lint', 'babel', 'html'], () => {
+gulp.task('watch', ['lint', 'babel'], () => {
   gulp.watch('app/scripts.babel/**/*.js', ['lint', 'babel']);
-  gulp.watch('bower.json', ['wiredep']);
 });
 
 gulp.task('size', () => {
   return gulp.src('dist/**/*').pipe($.size({title: 'build', gzip: true}));
 });
 
-gulp.task('wiredep', () => {
-  gulp.src('app/*.html')
-    .pipe(wiredep({
-      ignorePath: /^(\.\.\/)*\.\./
-    }))
-    .pipe(gulp.dest('app'));
-});
-
-gulp.task('package', function () {
+gulp.task('package', ['build'], function () {
   var manifest = require('./dist/manifest.json');
   return gulp.src('dist/**')
       .pipe($.zip('PR File Filter for Github-' + manifest.version + '.zip'))
@@ -124,7 +87,7 @@ gulp.task('package', function () {
 gulp.task('build', ['clean'], (cb) => {
   runSequence(
     'lint', 'babel', 'chromeManifest',
-    ['html', 'images', 'extras'],
+    ['extras'],
     'size', cb);
 });
 
