@@ -5,6 +5,9 @@ export default class FileFilter {
   constructor() {
     this.files = [];
     this.searchInput = document.getElementById('files-changed-filter-field');
+    this.searchToggle = document.querySelector('.diffbar-item.toc-select .js-menu-target');
+    this.searchValue = '';
+    this.fileDropdown = document.querySelector('.diffbar-item.toc-select .js-navigation-container');
   }
 
   matches(files, filter) {
@@ -13,11 +16,14 @@ export default class FileFilter {
     }
 
     if (!filter.includes('*')) {
-      return files.filter(file => file.name.includes(filter));
+      return files.map(file => ({
+        ...file,
+        show: file.name.includes(filter)
+      }));
     }
 
     if (!filter.endsWith('*')) {
-      filter = filter + '*';
+      filter = filter + '**';
     }
 
     const matchConfig = {
@@ -27,17 +33,16 @@ export default class FileFilter {
     };
     const matchedFiles = minimatch.match(this.files.map(file => file.name), filter, matchConfig);
 
-    return files.filter(file => matchedFiles.includes(file.name));
+    return files.map(file => ({
+      ...file,
+      show: matchedFiles.includes(file.name),
+    }));
   }
 
-  showFiltered(filter) {
-    this.files.forEach(file => {
-      file.filterNode.style.display = 'none';
-      file.listNode.style.display = 'none';
-    });
-    this.matches(this.files, filter).forEach(file => {
-      file.filterNode.style.display = 'block';
-      file.listNode.style.display = 'block';
+  showFiltered() {
+    this.matches(this.files, this.searchValue).forEach(file => {
+      file.filterNode.style.display = file.show ? 'block' : 'none';
+      file.listNode.style.display = file.show ? 'block' : 'none';
     });
   }
 
@@ -47,10 +52,15 @@ export default class FileFilter {
     return el;
   }
 
-  handleInput(event) {
-    const value = event.target.value;
+  handleSearchToggleClick() {
+    this.searchInput.value = this.searchValue;
+    this.showFiltered();
+  }
 
-    window.setTimeout(this.showFiltered.bind(this), 300, value);
+  handleInput(event) {
+    this.searchValue = event.target.value;
+
+    window.setTimeout(this.showFiltered.bind(this), 250);
   }
 
   collectFiles() {
@@ -63,16 +73,28 @@ export default class FileFilter {
         name: listNodeHeader.getAttribute('title'),
         filterNode: node,
         listNode: this.findParentNode(listNodeHeader),
+        show: true,
       });
     }
   }
 
+  bindMutationObserver() {
+    this.mutationObserver = new MutationObserver(this.showFiltered.bind(this));
+    this.mutationObserver.observe(this.fileDropdown, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["style"]
+    });
+  }
+
   bindEventListener() {
     this.searchInput.addEventListener('input', this.handleInput.bind(this));
+    this.searchToggle.addEventListener('click', this.handleSearchToggleClick.bind(this));
   }
 
   init() {
     this.bindEventListener();
+    this.bindMutationObserver();
     this.collectFiles();
   }
 }

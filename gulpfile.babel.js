@@ -92,7 +92,8 @@ gulp.task('babel', () => {
     debug: true
   });
   bundler.transform(babelify, {
-    presets: ['es2015']
+    presets: ['es2015'],
+    plugins: ['transform-object-rest-spread']
   });
   bundler.bundle()
     .on('error', function (err) { console.error(err); })
