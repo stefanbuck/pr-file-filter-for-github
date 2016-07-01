@@ -1,4 +1,5 @@
 import minimatch from 'minimatch';
+import isGlob from 'is-glob';
 const fileNodeSelector = '[data-filterable-for="files-changed-filter-field"] .js-navigation-item';
 
 export default class FileFilter {
@@ -15,16 +16,23 @@ export default class FileFilter {
       return files;
     }
 
-    if (!filter.includes('*')) {
+    if (!isGlob(filter)) {
       return files.map(file => ({
         ...file,
         show: file.name.toLowerCase().includes(filter.toLowerCase())
       }));
     }
 
-    if (!filter.endsWith('*')) {
-      filter = filter + '**';
-    }
+    // if (!filter.includes('*')) {
+    //   return files.map(file => ({
+    //     ...file,
+    //     show: file.name.toLowerCase().includes(filter.toLowerCase())
+    //   }));
+    // }
+
+    // if (!filter.endsWith('*')) {
+    //   filter = filter + '**';
+    // }
 
     const matchConfig = {
       nocase: true,
