@@ -18,7 +18,7 @@ export default class FileFilter {
     if (!filter.includes('*')) {
       return files.map(file => ({
         ...file,
-        show: file.name.includes(filter)
+        show: file.name.toLowerCase().includes(filter.toLowerCase())
       }));
     }
 
@@ -51,7 +51,11 @@ export default class FileFilter {
     });
 
     if (this.searchValue !== '') {
-      this.searchToggle.querySelector('strong').textContent = count + ' files found';
+      if (count === 0) {
+        this.searchToggle.querySelector('strong').textContent = 'No files match "' + this.searchValue + '"';
+      } else {
+        this.searchToggle.querySelector('strong').textContent = count + ' files match "' + this.searchValue + '"';
+      }
     } else {
       this.searchToggle.querySelector('strong').textContent = count + ' changed files';
     }
