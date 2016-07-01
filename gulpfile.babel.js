@@ -72,16 +72,9 @@ gulp.task('chromeManifest', () => {
   return gulp.src('app/manifest.json')
     .pipe($.chromeManifest({
       buildnumber: true,
-      background: {
-        target: 'scripts/background.js',
-        exclude: [
-          'scripts/chromereload.js'
-        ]
-      }
   }))
   .pipe($.if('*.css', $.cleanCss({compatibility: '*'})))
   .pipe($.if('*.js', $.sourcemaps.init()))
-  // .pipe($.if('*.js', $.uglify()))
   .pipe($.if('*.js', $.sourcemaps.write('.')))
   .pipe(gulp.dest('dist'));
 });
@@ -105,16 +98,6 @@ gulp.task('babel', () => {
 gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 
 gulp.task('watch', ['lint', 'babel', 'html'], () => {
-  $.livereload.listen();
-
-  gulp.watch([
-    'app/*.html',
-    'app/scripts/**/*.js',
-    'app/images/**/*',
-    'app/styles/**/*',
-    'app/_locales/**/*.json'
-  ]).on('change', $.livereload.reload);
-
   gulp.watch('app/scripts.babel/**/*.js', ['lint', 'babel']);
   gulp.watch('bower.json', ['wiredep']);
 });
@@ -134,11 +117,11 @@ gulp.task('wiredep', () => {
 gulp.task('package', function () {
   var manifest = require('./dist/manifest.json');
   return gulp.src('dist/**')
-      .pipe($.zip('Github PR File Filter-' + manifest.version + '.zip'))
+      .pipe($.zip('PR File Filter for Github-' + manifest.version + '.zip'))
       .pipe(gulp.dest('package'));
 });
 
-gulp.task('build', (cb) => {
+gulp.task('build', ['clean'], (cb) => {
   runSequence(
     'lint', 'babel', 'chromeManifest',
     ['html', 'images', 'extras'],
