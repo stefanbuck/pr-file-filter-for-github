@@ -78,7 +78,10 @@ export default class FileFilter {
   collectFiles() {
     const fileNodes = document.querySelectorAll(fileNodeSelector);
     for (const node of fileNodes) {
-      const name = node.querySelector('.description').textContent.trim().replace(/.../, '').replace(/\{ → /, '').replace(/\}/, '');
+      let name = node.querySelector('.description').textContent.trim().replace(/.../, '').replace(/\{ → /, '').replace(/\}/, '');
+      if (name.includes('→')) {
+        name = name.replace(/(.*)→ /g, '');
+      }
       const listNodeHeader = document.querySelector('#files [title$="' + name + '"]');
 
       this.files.push({
