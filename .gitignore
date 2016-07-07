@@ -5,3 +5,4 @@ dist
 .sass-cache
 package
 app/scripts
+npm-debug.log
